@@ -1,0 +1,14 @@
+  device AC:27:6E:A6:B4:34 battery 3722 mV, rssi -55, wake timer
+10.40.77.113 - - [17/Oct/2026 18:42:49] "GET /screen.png HTTP/1.1" 304 -
+  device AC:27:6E:A6:B4:34 battery 3724 mV, rssi -55, wake timer
+10.40.77.113 - - [17/Oct/2026 18:43:19] "GET /screen.png HTTP/1.1" 304 -
+  device AC:27:6E:A6:B4:34 battery 3726 mV, rssi -55, wake timer
+10.40.77.113 - - [17/Oct/2026 18:43:49] "GET /screen.png HTTP/1.1" 304 -
+  device AC:27:6E:A6:B4:34 battery 3728 mV, rssi -55, wake timer
+10.40.77.113 - - [17/Oct/2026 18:44:38] "GET /screen.png HTTP/1.1" 304 -
+  device AC:27:6E:A6:B4:34 battery 3728 mV, rssi -54, wake timer
+10.40.77.113 - - [17/Oct/2026 18:45:10] "GET /screen.png HTTP/1.1" 200 -
+  device AC:27:6E:A6:B4:34 battery 3730 mV, rssi -59, wake timer
+10.40.77.113 - - [17/Oct/2026 18:45:43] "GET /screen.png HTTP/1.1" 304 -
+  device AC:27:6E:A6:B4:34 battery 3742 mV, rssi -55, wake boot
+10.40.77.113 - - [17/Oct/2026 18:46:27] "GET /screen.png HTTP/1.1" 200 -
