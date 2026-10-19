@@ -65,6 +65,19 @@ On each wake the device does `GET <url>` with headers `If-None-Match`, `X-Batter
 
 Measured: a 304 wake costs ~1–2 s awake; full refresh 5.2 s, fast 2.0 s, partial 1.3 s.
 
+## Fabricate metrics dashboard (`dashboard/`)
+
+`dashboard/fabricate.py` renders Fabricate admin metrics (activity, signups, hours, ships, funnel, review ops, grants/scraps, countries, audience) as a 1-bit 800×480 screen, pulled straight from the Fabricate admin MCP over HTTP. The token lives in `~/.config/fabricate-epd/token` (not in the repo).
+
+```sh
+python3 dashboard/fabricate.py render out.png          # fetch + render once
+python3 dashboard/fabricate.py render out.png --cache  # re-render last data, offline
+systemctl --user status fabricate-epd                  # the server (dashboard/fabricate-epd.service), :8080
+python3 tools/epd.py config url=http://<laptop-ip>:8080/fabricate.png
+```
+
+The server answers `/fabricate.png` (also `/` and `/screen.png`) and sets `X-Next-Refresh` so the device wakes ~20 s after every full hour; metrics are fetched on that wake. If the fetch fails it draws the last good data marked `STALE` and retries in 10 minutes.
+
 ## Build / flash
 
 ```sh

@@ -1,0 +1,12 @@
+[Unit]
+Description=Fabricate metrics dashboard for the reTerminal e-paper
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStart=/usr/bin/python3 %h/Documents/Hack\x20Club/epd/dashboard/fabricate.py serve --port 8080
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=default.target
