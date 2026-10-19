@@ -65,18 +65,19 @@ On each wake the device does `GET <url>` with headers `If-None-Match`, `X-Batter
 
 Measured: a 304 wake costs ~1–2 s awake; full refresh 5.2 s, fast 2.0 s, partial 1.3 s.
 
-## Fabricate metrics dashboard (`dashboard/`)
+## Fabricate metrics dashboard (on-device)
 
-`dashboard/fabricate.py` renders Fabricate admin metrics (activity, signups, hours, ships, funnel, review ops, grants/scraps, countries, audience) as a 1-bit 800×480 screen, pulled straight from the Fabricate admin MCP over HTTP. The token lives in `~/.config/fabricate-epd/token` (not in the repo).
+With `url=fabricate` the device itself calls the Fabricate admin MCP (`https://fabricate.hackclub.com/mcp`, TLS verified against the Google Trust Services / GlobalSign roots in `firmware/src/roots.h`) and draws the dashboard (`firmware/src/dashboard.h`): activity, signups, hours, ships, funnel, review ops, grants/scraps, countries and audience. No server needed.
 
 ```sh
-python3 dashboard/fabricate.py render out.png          # fetch + render once
-python3 dashboard/fabricate.py render out.png --cache  # re-render last data, offline
-systemctl --user status fabricate-epd                  # the server (dashboard/fabricate-epd.service), :8080
-python3 tools/epd.py config url=http://<laptop-ip>:8080/fabricate.png
+python3 tools/epd.py config url=fabricate fab_token=fab_mcp_... interval=3600   # token is write-only
+python3 tools/epd.py config tz=EST5EDT,M3.2.0,M11.1.0                         # POSIX TZ (default)
+curl -X POST http://reterminal.local/refresh                                    # fetch now
 ```
 
-The server answers `/fabricate.png` (also `/` and `/screen.png`) and sets `X-Next-Refresh` so the device wakes ~20 s after every full hour; metrics are fetched on that wake. If the fetch fails it draws the last good data marked `STALE` and retries in 10 minutes.
+It wakes ~20 s after every full hour (a fetch takes ~4–5 s). The clock is set from the server's `Date` header. If a fetch fails, the last screen stays up with an OFFLINE badge and it retries with the usual back-off.
+
+Fonts are the TTFs in `dashboard/fonts/`, rasterized into GFX bitmap fonts by `python3 dashboard/gen_fonts.py` (writes `firmware/src/dash_fonts.h`); re-run it after changing sizes.
 
 ## Build / flash
 

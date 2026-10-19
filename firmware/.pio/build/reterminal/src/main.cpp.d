@@ -284,4 +284,5 @@
  .pio/libdeps/reterminal/Adafruit\ GFX\ Library/Fonts/FreeSansBold24pt7b.h \
  src/panel.h .pio/libdeps/reterminal/GxEPD2/src/GxEPD2_EPD.h \
  .pio/libdeps/reterminal/GxEPD2/src/GxEPD2.h \
- .pio/libdeps/reterminal/GxEPD2/src/GxEPD2_EPD_friends.h src/web_ui.h
+ .pio/libdeps/reterminal/GxEPD2/src/GxEPD2_EPD_friends.h src/web_ui.h \
+ src/dashboard.h src/dash_fonts.h src/roots.h

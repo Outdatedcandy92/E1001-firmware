@@ -33,7 +33,7 @@
 #include "panel.h"
 #include "web_ui.h"
 
-#define FW_VERSION "1.1.0"
+#define FW_VERSION "1.2.0"
 
 // pins (Seeed schematic v1.2)
 #define PIN_EPD_SCK 7
@@ -64,6 +64,7 @@
 
 struct Config {
   String ssid, pass, ssid2, pass2, url, host;  // ssid2 = fallback network
+  String fabToken, tz;  // url "fabricate": on-device Fabricate dashboard (dashboard.h)
   uint32_t interval;   // seconds between pulls (0 = only on button)
   uint32_t awake;      // seconds to stay awake after button/boot on battery
   uint8_t usbAwake;    // never sleep while USB powered
@@ -175,6 +176,8 @@ void loadConfig() {
   cfg.pass2 = prefs.getString("pass2", "");
   cfg.url = prefs.getString("url", "");
   cfg.host = prefs.getString("host", "reterminal");
+  cfg.fabToken = prefs.getString("fab_token", "");
+  cfg.tz = prefs.getString("tz", "EST5EDT,M3.2.0,M11.1.0");
   cfg.interval = prefs.getUInt("interval", 900);
   cfg.awake = prefs.getUInt("awake", 120);
   cfg.usbAwake = prefs.getUChar("usb_awake", 1);
@@ -192,6 +195,8 @@ bool applyConfig(JsonObjectConst j) {
   if (j["pass2"].is<const char*>()) { cfg.pass2 = j["pass2"].as<String>(); prefs.putString("pass2", cfg.pass2); wifi = true; }
   if (j["url"].is<const char*>()) { cfg.url = j["url"].as<String>(); prefs.putString("url", cfg.url); rtcEtag[0] = 0; }
   if (j["host"].is<const char*>()) { cfg.host = j["host"].as<String>(); prefs.putString("host", cfg.host); }
+  if (j["fab_token"].is<const char*>()) { cfg.fabToken = j["fab_token"].as<String>(); prefs.putString("fab_token", cfg.fabToken); }
+  if (j["tz"].is<const char*>()) { cfg.tz = j["tz"].as<String>(); prefs.putString("tz", cfg.tz); }
   if (j["interval"].is<uint32_t>()) { cfg.interval = j["interval"]; prefs.putUInt("interval", cfg.interval); rtcNextOverride = 0; }
   if (j["awake"].is<uint32_t>()) { cfg.awake = j["awake"]; prefs.putUInt("awake", cfg.awake); }
   if (j["usb_awake"].is<uint32_t>()) { cfg.usbAwake = j["usb_awake"]; prefs.putUChar("usb_awake", cfg.usbAwake); }
@@ -205,6 +210,8 @@ void configJson(JsonObject o) {
   o["ssid2"] = cfg.ssid2;
   o["url"] = cfg.url;
   o["host"] = cfg.host;
+  o["tz"] = cfg.tz;
+  o["fab_token_set"] = !cfg.fabToken.isEmpty();  // write-only
   o["interval"] = cfg.interval;
   o["awake"] = cfg.awake;
   o["usb_awake"] = cfg.usbAwake;
@@ -401,6 +408,8 @@ void startAp() {
   Serial.printf("AP mode: %s %s\n", name.c_str(), WiFi.softAPIP().toString().c_str());
 }
 
+#include "dashboard.h"
+
 // ---------- pull ----------
 
 // returns true if the screen changed
@@ -408,6 +417,7 @@ bool pull() {
   lastPull = millis();
   if (cfg.url.isEmpty()) { lastPullResult = "no url"; return false; }
   if (WiFi.status() != WL_CONNECTED && !connectWifi()) { lastPullResult = "wifi failed"; rtcFails++; return false; }
+  if (cfg.url == "fabricate") return fabricatePull();
 
   HTTPClient http;
   WiFiClientSecure tls;

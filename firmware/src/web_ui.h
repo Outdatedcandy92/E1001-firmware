@@ -39,11 +39,11 @@ label{font-size:13px;color:var(--mute)}input[type=text],input[type=number],input
 const $=id=>document.getElementById(id),cv=$('cv'),cx=cv.getContext('2d');let src=null;
 function toast(t){const m=$('msg');m.textContent=t;m.style.display='block';clearTimeout(m._t);m._t=setTimeout(()=>m.style.display='none',3000)}
 async function act(a){toast(a+'…');const r=await fetch('/'+a,{method:'POST'});toast(await r.text());status()}
-const FIELDS={url:'text',interval:'number',awake:'number',usb_awake:'number',full_every:'number',host:'text',ssid:'text',pass:'password',ssid2:'text',pass2:'password'};
+const FIELDS={url:'text',interval:'number',awake:'number',usb_awake:'number',full_every:'number',host:'text',ssid:'text',pass:'password',ssid2:'text',pass2:'password',tz:'text',fab_token:'password'};
 async function status(){const s=await (await fetch('/status')).json();
  $('st').innerHTML=Object.entries(s).filter(([k])=>k!='config').map(([k,v])=>`<div>${k}<b>${v}</b></div>`).join('');
  if(!$('cfg').children.length)$('cfg').innerHTML=Object.entries(FIELDS).map(([k,t])=>`<div><label>${k}</label><input type="${t}" id="c_${k}" value="${s.config[k]??''}"></div>`).join('')}
-async function saveCfg(){const c={};for(const[k,t]of Object.entries(FIELDS)){const v=$('c_'+k).value;if(k.startsWith('pass')&&!v)continue;c[k]=t=='number'?+v:v}
+async function saveCfg(){const c={};for(const[k,t]of Object.entries(FIELDS)){const v=$('c_'+k).value;if(t=='password'&&!v)continue;c[k]=t=='number'?+v:v}
  const r=await fetch('/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(c)});toast(await r.text())}
 $('file').onchange=e=>{const i=new Image();i.onload=()=>{src=i;render()};i.src=URL.createObjectURL(e.target.files[0])};
 ['th','dither','inv','fit'].forEach(id=>$(id).oninput=render);
